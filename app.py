@@ -11,6 +11,7 @@ class IthomeAnalysis:
         ConnectDb.analysis.insert(self.count_source_article())
         ConnectDb.analysis.insert(self.count_topic_article())
         ConnectDb.analysis.insert(self.count_editor_article())
+        ConnectDb.analysis.insert(self.count_editor_original_radio())
 
         Output().output_to_json()
         return True
@@ -63,7 +64,6 @@ class IthomeAnalysis:
         count_data = ConnectDb.article.aggregate([
             {'$group': {'_id': '$topic_id', 'count': {'$sum': 1}}},
             {'$sort': {'count': -1}}
-
         ])
         return_data = {
             'name': 'topic_article_sort',
@@ -99,20 +99,44 @@ class IthomeAnalysis:
         return return_data
 
     @staticmethod
-    def count_editor_info():
+    def count_editor_original_radio():
         count_data = ConnectDb.article.aggregate([
-            {'$group': {'_id': '$editor', 'count': {'$sum': 1}}},
-        ])
+            {
+                '$group': {
+                    '_id': '$editor',
+                    'count': {'$sum': 1},
+                    'count_original': {'$sum': {'$cond': [{'$eq': ['$source', 'IT之家']}, 1, 0]}}
+                },
+            }, {
+                '$match': {
+                    'count': {'$gt': 100}
+                }
+            }, {
+                '$project': {
+                    'original_ratio': {'$divide': ['$count_original', '$count']},
+                    'count':'$count',
+                    'count_original':'$count_original',
+                }
+            }, {
+                '$sort': {
+                    'original_ratio': -1,
+                    'count': -1
+                }
+            }])
         return_data = {
-            'name': 'count_editor_base_info',
+            'name': 'count_editor_original_radio',
             'data': {
                 'cols': [],
-                'counts': []
+                'counts': [],
+                'count_original': [],
+                'original_ratio': [],
             }
         }
         for item in count_data:
             return_data['data']['cols'].append(item['_id'])
             return_data['data']['counts'].append(item['count'])
+            return_data['data']['count_original'].append(item['count_original'])
+            return_data['data']['original_ratio'].append(item['original_ratio'])
         print('原创文章数量:', return_data['data'])
         return return_data
 
