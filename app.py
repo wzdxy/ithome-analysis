@@ -12,6 +12,8 @@ class IthomeAnalysis:
         ConnectDb.analysis.insert(self.count_topic_article())
         ConnectDb.analysis.insert(self.count_editor_article())
         ConnectDb.analysis.insert(self.count_editor_original_radio())
+        ConnectDb.analysis.insert(self.editor_grade_order())
+        ConnectDb.analysis.insert(self.article_grade_order())
 
         Output().output_to_json()
         return True
@@ -78,6 +80,7 @@ class IthomeAnalysis:
         print('话题文章数量:', return_data['data'])
         return return_data
 
+    # 小编文章数量
     @staticmethod
     def count_editor_article():
         count_data = ConnectDb.article.aggregate([
@@ -98,6 +101,7 @@ class IthomeAnalysis:
         print('编审文章数量:', return_data['data'])
         return return_data
 
+    # 小编的原创文章比例
     @staticmethod
     def count_editor_original_radio():
         count_data = ConnectDb.article.aggregate([
@@ -138,6 +142,94 @@ class IthomeAnalysis:
             return_data['data']['count_original'].append(item['count_original'])
             return_data['data']['original_ratio'].append(item['original_ratio'])
         print('原创文章数量:', return_data['data'])
+        return return_data
+
+    # 小编评分排行
+    @staticmethod
+    def editor_grade_order():
+        grade_data = ConnectDb.article.aggregate([
+            {
+                '$match': {
+                    'grade': {'$exists': True}
+                },
+            }, {
+                '$group': {
+                    '_id': '$editor',
+                    'grade_sum': {'$sum': '$grade'},
+                    'count': {'$sum': 1}
+                }
+            }, {
+                '$match': {
+                    'count': {'$gt': 20}
+                }
+            }, {
+                '$project': {
+                    'grade_avg': {'$divide': ['$grade_sum', '$count']},
+                    'grade_sum': '$grade_sum',
+                    'count': '$count'
+                }
+            }, {
+                '$sort': {
+                    'grade_avg': -1,
+                    'count': -1
+                },
+            }, {
+                '$limit': 15
+            }])
+        return_data = {
+            'name': 'editor_grade_order',
+            'data': {
+                'cols': [],
+                'grade_avg': [],
+                'grade_sum': [],
+                'counts': [],
+            }
+        }
+        for item in grade_data:
+            return_data['data']['cols'].append(item['_id'])
+            return_data['data']['grade_avg'].append(item['grade_avg'])
+            return_data['data']['grade_sum'].append(item['grade_sum'])
+            return_data['data']['counts'].append(item['count'])
+        print('小编评分排行:', return_data['data'])
+        return return_data
+
+    # 文章评分排行
+    @staticmethod
+    def article_grade_order():
+        grade_data = ConnectDb.article.aggregate([
+            {
+                '$match': {
+                    'grade': {'$exists': True},
+                },
+            }, {
+                '$sort': {
+                    'grade': -1,
+                    'grade_people_count': -1
+                },
+            }, {
+                '$limit': 20
+            }
+        ])
+        return_data = {
+            'name': 'article_grade_order',
+            'data': {
+                'cols': [],
+                'grade': [],
+                'grade_people_count': [],
+                'title': [],
+                'article_url': [],
+                'source': [],
+            }
+        }
+        for item in grade_data:
+            return_data['data']['cols'].append(item['article_id'])
+            return_data['data']['grade'].append(item['grade'])
+            return_data['data']['grade_people_count'].append(item['grade_people_count'])
+            return_data['data']['title'].append(item['title'])
+            return_data['data']['article_url'].append(item['article_url'])
+            return_data['data']['source'].append(item['source'])
+
+        print('文章评分排行:', return_data['data'])
         return return_data
 
     @staticmethod
