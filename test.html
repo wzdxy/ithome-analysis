@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body style="height: 100vh;">
+<div id="forum_article_sort" style="width: 100%;height:100vh;"></div>
+<div id="topic_count_sort" style="width: 100%;height:100vh;"></div>
+<div id="source_article_sort" style="width: 100%;height:100vh;"></div>
+<div id="editor_article_sort" style="width: 100%;height:100vh;"></div>
+<div id="count_editor_original_radio" style="width: 100%;height:100vh;"></div>
+<div id="editor_grade_order" style="width: 100%;height:100vh;"></div>
+<div id="article_grade_order" style="width: 100%;height:100vh;"></div>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+</style>
+</body>
+<script src="output.js"></script>
+<script src="https://cdn.bootcss.com/echarts/3.7.2/echarts.js"></script>
+<script>
+    var forum_article_sort = echarts.init(document.getElementById('forum_article_sort'));
+    var option = {
+        title: {
+            text: 'ITHome 热门板块文章数量排行'
+        },
+        tooltip: {},
+        legend: {
+            data: ['文章数量']
+        },
+        xAxis: {
+            data: analysisData.forum_article_sort.cols.slice(0, 10)
+        },
+        yAxis: {},
+        series: [{
+            name: '文章数量',
+            type: 'bar',
+            data: analysisData.forum_article_sort.counts.slice(0, 10)
+        }]
+    };
+    forum_article_sort.setOption(option);
+
+    var topic_count_sort = echarts.init(document.getElementById('topic_count_sort'));
+    var option = {
+        title: {
+            text: 'ITHome 热门话题文章排行'
+        },
+        tooltip: {},
+        legend: {
+            data: ['文章数量']
+        },
+        xAxis: {
+            data: analysisData.topic_article_sort.cols.slice(0, 10)
+        },
+        yAxis: {},
+        series: [{
+            name: '文章数量',
+            type: 'bar',
+            data: analysisData.topic_article_sort.counts.slice(0, 10)
+        }]
+    };
+    topic_count_sort.setOption(option);
+
+    var source_article_sort = echarts.init(document.getElementById('source_article_sort'));
+    var option = {
+        title: {
+            text: 'ITHome 主要转载来源'
+        },
+        tooltip: {},
+        legend: {
+            data: ['文章数量']
+        },
+        xAxis: {
+            data: analysisData.source_article_sort.cols.slice(0, 10)
+        },
+        yAxis: {},
+        series: [{
+            name: '文章数量',
+            type: 'bar',
+            data: analysisData.source_article_sort.counts.slice(0, 10)
+        }]
+    };
+    source_article_sort.setOption(option);
+
+
+    var editor_article_sort = echarts.init(document.getElementById('editor_article_sort'));
+    var option = {
+        title: {
+            text: 'ITHome 小编发文数量排行(部分)'
+        },
+        tooltip: {},
+        legend: {
+            data: ['文章数量']
+        },
+        xAxis: {
+            data: analysisData.count_editor_article.cols.slice(0, 25)
+        },
+        yAxis: {},
+        series: [{
+            name: '文章数量',
+            type: 'bar',
+            data: analysisData.count_editor_article.counts.slice(0, 25)
+        }]
+    };
+    editor_article_sort.setOption(option);
+
+    let data_count_editor_original_radio=analysisData.count_editor_original_radio;
+    var count_editor_original_radio = echarts.init(document.getElementById('count_editor_original_radio'));
+    var option = {
+        title: {
+            text: 'ITHome 小编原创比例排行(文章数>100)'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function (item) {
+                let idx = item.dataIndex;
+                return `编审 : <span>${data_count_editor_original_radio.cols[idx]}</span><br>
+                文章总数 : <span>${data_count_editor_original_radio.counts[idx]}</span><br>
+                原创数量 : <span>${data_count_editor_original_radio.count_original[idx]}</span><br>
+                原创比例 : <span>${data_count_editor_original_radio.original_ratio[idx].toFixed(3)}</span><br>`
+            },
+        },
+        legend: {
+            data: ['原创比例']
+        },
+        xAxis: {
+            data: analysisData.count_editor_original_radio.cols.slice(0, 30),
+            axisLabel:{
+                interval: 0,
+                rotate:-25
+            }
+        },
+        yAxis: {},
+        series: [{
+            name: '原创比例',
+            type: 'bar',
+            data: analysisData.count_editor_original_radio.original_ratio.slice(0, 30)
+        }]
+    };
+    count_editor_original_radio.setOption(option);
+
+
+    let data_editor_grade_order=analysisData.editor_grade_order;
+    var editor_grade_order = echarts.init(document.getElementById('editor_grade_order'));
+    var option = {
+        title: {
+            text: 'ITHome 小编好评 TOP15 (文章数>=20 , 共 38 位小编)'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function (item) {
+                let idx = item.dataIndex;
+                return `编审 : <span>${data_editor_grade_order.cols[idx]}</span><br>
+                文章总数 : <span>${data_editor_grade_order.counts[idx]}</span><br>
+                平均评分 : <span>${data_editor_grade_order.grade_avg[idx].toFixed(3)}</span><br>`
+            },
+        },
+        legend: {
+            data: ['文章评分']
+        },
+        xAxis: {
+            data: analysisData.editor_grade_order.cols,//.slice(0, 25)
+            axisLabel:{
+                interval: 0
+            }
+        },
+        yAxis: {},
+        series: [{
+            name: '文章评分',
+            type: 'bar',
+            data: analysisData.editor_grade_order.grade_avg//.slice(0, 25)
+        }]
+    };
+    editor_grade_order.setOption(option);
+
+
+    let data_article_grade_order=analysisData.article_grade_order;
+    let $article_grade_order = document.getElementById('article_grade_order');
+    $article_grade_order.innerHTML+='<div><h3>ITHome 最受好评的文章 TOP20 </h3></div>';
+    $article_grade_order.innerHTML+=`<div class="table-head"><span class="cell col7">标题</span><span class="cell col1">评分</span><span class="cell col1">评分人数</span><span class="cell col1">来源</span></div>`;
+    let $list=document.createElement('ul');
+    $list.classList.add('table-body');
+    data_article_grade_order.cols.forEach(function (item,i) {
+        $list.innerHTML += `<li class="table-row">
+            <span class="cell col7"><a href="${data_article_grade_order.article_url[i]}" target="_blank">${data_article_grade_order.title[i]}</a></span>
+            <span class="cell col1">${data_article_grade_order.grade[i]}</span>
+            <span class="cell col1">${data_article_grade_order.grade_people_count[i]}</span>
+            <span class="cell col1">${data_article_grade_order.source[i]}</span>
+            </li>`;
+    });
+    $article_grade_order.appendChild($list);
+
+
+</script>
+<style>
+
+
+    .table-head,.table-body{
+        padding:10px;
+    }
+    .table-head,.table-row{
+        display: block;
+        border-bottom: 1px solid #eeeeee;
+    }
+    .table-head{
+        background-color: #aaa
+    }
+    .table-row a:hover{
+        color: #d22222;
+        text-decoration: underline;
+    }
+    .table-row a{
+        color: #000;
+        text-decoration: none;
+        display: inline-block;
+        width: 100%;
+        line-height: 1.8;
+    }
+    .table-row:hover{
+        background-color: #ddd;
+    }
+
+    .col1,.col2,.col3,.col4,.col5,.col6,.col7,.col8,.col9,.col10,.col11,.col12{
+        display: inline-block;
+    }
+    .col1{
+        width:8.33333%;
+    }
+    .col2{
+        width:16.66666%;
+    }
+    .col3{
+        width:25%;
+    }
+    .col4{
+        width:33.33333%;
+    }
+    .col5{
+        width:41.66666%;
+    }
+    .col6{
+        width:50%;
+    }
+    .col7{
+        width:58.33333%;
+    }
+    .col8{
+        width:66.66666%;
+    }
+    .col9{
+        width:75%;
+    }
+    .col10{
+        width:83.33333%;
+    }
+    .col11{
+        width:91.66666%;
+    }
+    .col12{
+        width:100%;
+    }
+</style>
+</html>
