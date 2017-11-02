@@ -14,6 +14,7 @@ class IthomeAnalysis:
         ConnectDb.analysis.insert(self.count_editor_original_radio())
         ConnectDb.analysis.insert(self.editor_grade_order())
         ConnectDb.analysis.insert(self.article_grade_order())
+        ConnectDb.analysis.insert(self.article_comment_count_order())
 
         Output().output_to_json()
         return True
@@ -207,7 +208,7 @@ class IthomeAnalysis:
                     'grade_people_count': -1
                 },
             }, {
-                '$limit': 20
+                '$limit': 25
             }
         ])
         return_data = {
@@ -219,6 +220,7 @@ class IthomeAnalysis:
                 'title': [],
                 'article_url': [],
                 'source': [],
+                'editor': [],
             }
         }
         for item in grade_data:
@@ -228,8 +230,48 @@ class IthomeAnalysis:
             return_data['data']['title'].append(item['title'])
             return_data['data']['article_url'].append(item['article_url'])
             return_data['data']['source'].append(item['source'])
+            return_data['data']['editor'].append(item['editor'])
 
         print('文章评分排行:', return_data['data'])
+        return return_data
+
+    # 文章评分排行
+    @staticmethod
+    def article_comment_count_order():
+        grade_data = ConnectDb.article.aggregate([
+            {
+                '$sort': {
+                    'comment_count': -1,
+                },
+            }, {
+                '$limit': 25
+            }
+        ])
+        return_data = {
+            'name': 'article_comment_count_order',
+            'data': {
+                'cols': [],
+                'grade': [],
+                'comment_count': [],
+                'title': [],
+                'article_url': [],
+                'source': [],
+                'editor': [],
+            }
+        }
+        for item in grade_data:
+            return_data['data']['cols'].append(item['article_id'])
+            if 'grade' in item :
+                return_data['data']['grade'].append(item['grade'])
+            else:
+                return_data['data']['grade'].append(None)
+            return_data['data']['comment_count'].append(item['comment_count'])
+            return_data['data']['title'].append(item['title'])
+            return_data['data']['article_url'].append(item['article_url'])
+            return_data['data']['source'].append(item['source'])
+            return_data['data']['editor'].append(item['editor'])
+
+        print('文章评论数排行:', return_data['data'])
         return return_data
 
     @staticmethod

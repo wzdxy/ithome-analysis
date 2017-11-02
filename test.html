@@ -14,6 +14,7 @@
 <div id="count_editor_original_radio" style="width: 100%;height:100vh;"></div>
 <div id="editor_grade_order" style="width: 100%;height:100vh;"></div>
 <div id="article_grade_order" style="width: 100%;height:100vh;"></div>
+<div id="article_comment_count_order" style="width: 100%;height:100vh;"></div>
 <style>
     * {
         padding: 0;
@@ -40,7 +41,10 @@
         series: [{
             name: '文章数量',
             type: 'bar',
-            data: analysisData.forum_article_sort.counts.slice(0, 10)
+            data: analysisData.forum_article_sort.counts.slice(0, 10),
+            label:{
+                normal:{show:true, position:'top'}
+            }
         }]
     };
     forum_article_sort.setOption(option);
@@ -61,12 +65,17 @@
         series: [{
             name: '文章数量',
             type: 'bar',
-            data: analysisData.topic_article_sort.counts.slice(0, 10)
+            data: analysisData.topic_article_sort.counts.slice(0, 10),
+            label:{
+                normal:{show:true, position:'top'}
+            }
         }]
     };
     topic_count_sort.setOption(option);
 
     var source_article_sort = echarts.init(document.getElementById('source_article_sort'));
+    let all_source_sum=0;
+    analysisData.source_article_sort.counts.forEach(count=>all_source_sum+=count);
     var option = {
         title: {
             text: 'ITHome 主要转载来源'
@@ -82,7 +91,10 @@
         series: [{
             name: '文章数量',
             type: 'bar',
-            data: analysisData.source_article_sort.counts.slice(0, 10)
+            data: analysisData.source_article_sort.counts.slice(0, 10),
+            label:{
+                normal:{show:true, position:'top', formatter:(item)=>`${item.value} / ${(item.value/all_source_sum*100).toFixed(1)}% `},
+            },
         }]
     };
     source_article_sort.setOption(option);
@@ -104,7 +116,10 @@
         series: [{
             name: '文章数量',
             type: 'bar',
-            data: analysisData.count_editor_article.counts.slice(0, 25)
+            data: analysisData.count_editor_article.counts.slice(0, 25),
+            label:{
+                normal:{show:true, position:'top'},
+            },
         }]
     };
     editor_article_sort.setOption(option);
@@ -139,7 +154,10 @@
         series: [{
             name: '原创比例',
             type: 'bar',
-            data: analysisData.count_editor_original_radio.original_ratio.slice(0, 30)
+            data: analysisData.count_editor_original_radio.original_ratio.slice(0, 30),
+            label:{
+                normal:{show:true, position:'top', formatter:(item)=>item.value.toFixed(3)},
+            },
         }]
     };
     count_editor_original_radio.setOption(option);
@@ -173,27 +191,53 @@
         series: [{
             name: '文章评分',
             type: 'bar',
-            data: analysisData.editor_grade_order.grade_avg//.slice(0, 25)
+            data: analysisData.editor_grade_order.grade_avg,//.slice(0, 25)
+            label:{
+                normal:{show:true, position:'top', formatter:(item)=>item.value.toFixed(3)}
+            }
         }]
     };
     editor_grade_order.setOption(option);
 
 
-    let data_article_grade_order=analysisData.article_grade_order;
-    let $article_grade_order = document.getElementById('article_grade_order');
-    $article_grade_order.innerHTML+='<div><h3>ITHome 最受好评的文章 TOP20 </h3></div>';
-    $article_grade_order.innerHTML+=`<div class="table-head"><span class="cell col7">标题</span><span class="cell col1">评分</span><span class="cell col1">评分人数</span><span class="cell col1">来源</span></div>`;
-    let $list=document.createElement('ul');
-    $list.classList.add('table-body');
-    data_article_grade_order.cols.forEach(function (item,i) {
-        $list.innerHTML += `<li class="table-row">
-            <span class="cell col7"><a href="${data_article_grade_order.article_url[i]}" target="_blank">${data_article_grade_order.title[i]}</a></span>
-            <span class="cell col1">${data_article_grade_order.grade[i]}</span>
-            <span class="cell col1">${data_article_grade_order.grade_people_count[i]}</span>
-            <span class="cell col1">${data_article_grade_order.source[i]}</span>
-            </li>`;
-    });
-    $article_grade_order.appendChild($list);
+    {
+        let data_article_grade_order=analysisData.article_grade_order;
+        let $article_grade_order = document.getElementById('article_grade_order');
+        $article_grade_order.innerHTML+='<div><h3>ITHome 最受好评的文章 TOP25 </h3></div>';
+        $article_grade_order.innerHTML+=`<div class="table-head"><span class="cell col7">标题</span><span class="cell col1">评分</span><span class="cell col1">评分人数</span><span class="cell col1">来源</span><span class="cell col1">编审</span></div>`;
+        let $list=document.createElement('ul');
+        $list.classList.add('table-body');
+        data_article_grade_order.cols.forEach(function (item,i) {
+            $list.innerHTML += `<li class="table-row">
+                <span class="cell col7"><a href="${data_article_grade_order.article_url[i]}" target="_blank">${data_article_grade_order.title[i]}</a></span>
+                <span class="cell col1">${data_article_grade_order.grade[i]}</span>
+                <span class="cell col1">${data_article_grade_order.grade_people_count[i]}</span>
+                <span class="cell col1">${data_article_grade_order.source[i]}</span>
+                <span class="cell col1">${data_article_grade_order.editor[i]}</span>
+                </li>`;
+        });
+        $article_grade_order.appendChild($list);
+    }
+
+    {
+        let data_article_comment_count_order=analysisData.article_comment_count_order;
+        let $article_comment_count_order = document.getElementById('article_comment_count_order');
+        $article_comment_count_order.innerHTML+='<div><h3>ITHome 评论数最多的文章 TOP25 </h3></div>';
+        $article_comment_count_order.innerHTML+=`<div class="table-head"><span class="cell col7">标题</span><span class="cell col1">评分</span><span class="cell col1">评论数</span><span class="cell col1">来源</span><span class="cell col1">编审</span></div>`;
+        let $list=document.createElement('ul');
+        $list.classList.add('table-body');
+        data_article_comment_count_order.cols.forEach(function (item,i) {
+            $list.innerHTML += `<li class="table-row">
+                <span class="cell col7"><a href="${data_article_comment_count_order.article_url[i]}" target="_blank">${data_article_comment_count_order.title[i]}</a></span>
+                <span class="cell col1">${data_article_comment_count_order.grade[i]}</span>
+                <span class="cell col1">${data_article_comment_count_order.comment_count[i]}</span>
+                <span class="cell col1">${data_article_comment_count_order.source[i]}</span>
+                <span class="cell col1">${data_article_comment_count_order.editor[i]}</span>
+                </li>`;
+        });
+        $article_comment_count_order.appendChild($list);
+    }
+
 
 
 </script>
@@ -219,7 +263,7 @@
         text-decoration: none;
         display: inline-block;
         width: 100%;
-        line-height: 1.8;
+        line-height: 1.6;
     }
     .table-row:hover{
         background-color: #ddd;
