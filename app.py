@@ -7,6 +7,7 @@ class IthomeAnalysis:
     def main(self):
         self.clear_old()
 
+        ConnectDb.analysis.insert(self.base_info())
         ConnectDb.analysis.insert(self.count_forum_article())
         ConnectDb.analysis.insert(self.count_source_article())
         ConnectDb.analysis.insert(self.count_topic_article())
@@ -18,6 +19,30 @@ class IthomeAnalysis:
 
         Output().output_to_json()
         return True
+
+    @staticmethod
+    def base_info():
+        return_data = {
+            'name': 'base_info',
+            'data': {}
+        }
+
+        # 评论总数
+        return_data['data']['comment_count'] = list(ConnectDb.article.aggregate([
+            {'$group': {'_id': '$tm_year', 'sum': {'$sum': '$comment_count'}}},
+            {'$sort': {'_id': 1}}
+        ]))
+
+        # 小编列表
+        return_data['data']['editor_list'] = list(ConnectDb.article.aggregate([
+            {'$group': {'_id': '$editor'}},
+        ]))
+
+        # 小编总数
+        return_data['data']['editor_count'] = len(return_data['data']['editor_list'])
+
+        print('基本信息:', return_data['data'])
+        return return_data
 
     # 新闻来源文章数量
     @staticmethod
