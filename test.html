@@ -24,8 +24,9 @@
 </body>
 <script src="output.js"></script>
 <script src="https://cdn.bootcss.com/echarts/3.7.2/echarts.js"></script>
+<script src="ithome.js"></script>
 <script>
-    var forum_article_sort = echarts.init(document.getElementById('forum_article_sort'));
+    var forum_article_sort = echarts.init(document.getElementById('forum_article_sort'),'ithome');
     var option = {
         title: {
             text: 'ITHome 热门板块文章数量排行'
@@ -49,7 +50,7 @@
     };
     forum_article_sort.setOption(option);
 
-    var topic_count_sort = echarts.init(document.getElementById('topic_count_sort'));
+    var topic_count_sort = echarts.init(document.getElementById('topic_count_sort'),'ithome');
     var option = {
         title: {
             text: 'ITHome 热门话题文章排行'
@@ -73,7 +74,7 @@
     };
     topic_count_sort.setOption(option);
 
-    var source_article_sort = echarts.init(document.getElementById('source_article_sort'));
+    var source_article_sort = echarts.init(document.getElementById('source_article_sort'),'ithome');
     let all_source_sum=0;
     analysisData.source_article_sort.counts.forEach(count=>all_source_sum+=count);
     var option = {
@@ -100,7 +101,7 @@
     source_article_sort.setOption(option);
 
 
-    var editor_article_sort = echarts.init(document.getElementById('editor_article_sort'));
+    var editor_article_sort = echarts.init(document.getElementById('editor_article_sort'),'ithome');
     var option = {
         title: {
             text: 'ITHome 小编发文数量排行(部分)'
@@ -125,7 +126,7 @@
     editor_article_sort.setOption(option);
 
     let data_count_editor_original_radio=analysisData.count_editor_original_radio;
-    var count_editor_original_radio = echarts.init(document.getElementById('count_editor_original_radio'));
+    var count_editor_original_radio = echarts.init(document.getElementById('count_editor_original_radio'),'ithome');
     var option = {
         title: {
             text: 'ITHome 小编原创比例排行(文章数>100)'
@@ -164,7 +165,7 @@
 
 
     let data_editor_grade_order=analysisData.editor_grade_order;
-    var editor_grade_order = echarts.init(document.getElementById('editor_grade_order'));
+    var editor_grade_order = echarts.init(document.getElementById('editor_grade_order'),'ithome');
     var option = {
         title: {
             text: 'ITHome 小编好评 TOP15 (文章数>=20 , 共 38 位小编)'
